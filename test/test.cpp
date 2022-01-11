@@ -7,6 +7,8 @@ void testClasses(){
     cout << "Testing classes" << endl;
     testPrimitive();
     testBasis();
+    testAtom();
+    testMolecule();
     cout << "Test classes passed" << endl << endl ;
 }
 

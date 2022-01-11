@@ -53,7 +53,61 @@ class Atom
     vector<Basis> basis_set;
 
     Atom(vector<double> const& , vector<Basis> const& );
-    !Atom();
+    ~Atom();
     double operator - (Atom const& );
 };
+class Molecule
+{
+    /* class Molecule:
+    Molecule object with Atoms
+    Members:
+        Variable         Data type                                  Description
+        n_atom           int                                        number of atoms
+        atoms            vector<Atom>(n_atom)                       atoms
+        charge           int                                        charge
+        n_basis          int                                        number of basis functions
+        s_itg            vector<vector<double>>(n_basis, n_basis)   overlap integrals
+        t_itg            vector<vector<double>>(n_basis, n_basis)   kinetic integrals
+        v_itg            vector<vector<double>>(n_basis, n_basis)   nucleus-electron coulomb integrals
+        e_itg            vector<vector<vector<vector<double>>>>(n_basis, n_basis, n_basis, n_basis)   two-electron integrals
+        s_itg_4idx       vector<vector<vector<vector<double>>>>(n_basis, n_prim, n_basis, n_prim)   overlap integrals (4-indexed)
+        k_factor         vector<vector<vector<vector<double>>>>(n_basis, n_prim, n_basis, n_prim)   prefactors k for two-electron integrals
+        is_s_itg_4idx_calculated    bool                            Record if s_itg_4idx calculated            
+    */  
+    public:
+    int n_atom;
+    vector<Atom> atoms;
+    int charge;
+    int n_basis;
+    vector<vector<double>> s_itg;
+    vector<vector<double>> t_itg;
+    vector<vector<double>> v_itg;    
+    vector<vector<vector<vector<double>>>> e_itg;
+    vector<vector<vector<vector<double>>>> s_itg_4idx;
+    vector<vector<vector<vector<double>>>> k_factor;
+    bool is_s_itg_4idx_calculated = false;
 
+    Molecule(const int ,
+    vector<Atom> const& , 
+    vector<vector<double>> const& , 
+    vector<vector<double>> const& , 
+    vector<vector<double>> const& , 
+    vector<vector<vector<vector<double>>>> const& );
+    Molecule(const int , vector<Atom> const& );
+    ~Molecule();
+    double getSItg(int , int );
+    double getTItg(int , int );
+    double getVItg(int , int );
+    double getEItg(int , int , int , int );
+
+    private:
+    void _initialize(const int, vector<Atom> const& );
+    void _calcNBasis();
+    void _calcSItg4idx();
+    void _checkSItg4idxCalculated();
+    void _calcSItg();
+    void _calcTItg();
+    void _calcVItg();
+    void _calcKFactor();
+    void _calcEItg();
+};
