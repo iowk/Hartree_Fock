@@ -23,7 +23,7 @@ void testBasis(){
     Primitive p2(2.0, 1.5);
     vector<Primitive> p1s{p1, p2};
     Basis b1(p1s);
-    p1s.clear();
+    p1s.shrink_to_fit();
 
     assert(isEqual(b1.primitives[0].alpha, 3.0) && "Incorrect alpha value for the first primitive");
     assert(isEqual(b1.primitives[0].c, 2.5) && "Incorrect coefficient value for the first primitive");
@@ -38,23 +38,25 @@ void testAtom(){
     Primitive p12(2.0, 1.5);
     vector<Primitive> p1s{p11, p12};
     Basis b1(p1s);
-    p1s.clear();
+    p1s.shrink_to_fit();
 
     Primitive p21(2.5, 3.5);
     Primitive p22(0.5, 4.0);
     Primitive p23(3.5, 1.0);
     vector<Primitive> p2s{p21, p22, p23};
     Basis b2(p2s);
-    p2s.clear();
+    p2s.shrink_to_fit();
 
     vector<double> coord1{0.3, -0.6, 1.4};
     vector<double> coord2{1.3, 2.0, -1.5};
     vector<Basis> basis_set{b1, b2};
-    Atom atom1(coord1, basis_set);
-    Atom atom2(coord2, basis_set);
-    coord1.clear();
-    coord2.clear();
-    basis_set.clear();
+    Atom atom1(coord1, basis_set, 3.0);
+    Atom atom2(coord2, basis_set, 4.2);
+    coord1.shrink_to_fit();
+    coord2.shrink_to_fit();
+    basis_set.shrink_to_fit();
+    assert(isEqual(atom1.mass, 3.0) && "Incorrect mass for atom1");
+    assert(isEqual(atom2.mass, 4.2) && "Incorrect mass for atom2");
     assert(isEqual(atom1.basis_set[0].primitives[0].alpha, 3.0) && "Incorrect alpha value for basis_set[0].primitives[0]");
     assert(isEqual(atom1.basis_set[1].primitives[0].c, 3.5) && "Incorrect coefficient value for basis_set[1].primitives[0]");
     assert(atom1.n_basis == 2 && "Incorrect n_basis value for atom1");
@@ -72,23 +74,23 @@ void testMolecule(){
     Primitive p12(2.0, 1.5);
     vector<Primitive> p1s{p11, p12};
     Basis b1(p1s);
-    p1s.clear();
+    p1s.shrink_to_fit();
 
     Primitive p21(2.5, 3.5);
     Primitive p22(0.5, 4.0);
     Primitive p23(3.5, 1.0);
     vector<Primitive> p2s{p21, p22, p23};
     Basis b2(p2s);
-    p2s.clear();
+    p2s.shrink_to_fit();
 
     vector<double> coord1{0.3, -0.6, 1.4};
     vector<double> coord2{1.3, 2.0, -1.5};
     vector<Basis> basis_set{b1, b2};
-    Atom atom1(coord1, basis_set);
-    Atom atom2(coord2, basis_set);
-    coord1.clear();
-    coord2.clear();
-    basis_set.clear();
+    Atom atom1(coord1, basis_set, 3.0);
+    Atom atom2(coord2, basis_set, 4.2);
+    coord1.shrink_to_fit();
+    coord2.shrink_to_fit();
+    basis_set.shrink_to_fit();
     
     vector<Atom> atoms{atom1, atom2};
     // dummy integrals for mol_explicit
@@ -98,7 +100,13 @@ void testMolecule(){
     vector<vector<vector<vector<double>>>> e_itg;
     Molecule mol_implicit(1, atoms);
     Molecule mol_explicit(1, atoms, s_itg, t_itg, v_itg, e_itg);
-    atoms.clear();
+    atoms.shrink_to_fit();
+    s_itg.shrink_to_fit();
+    t_itg.shrink_to_fit();
+    v_itg.shrink_to_fit();
+    e_itg.shrink_to_fit();
+    assert(isEqual(mol_implicit.atoms[0].mass, 3.0) && "Incorrect mass for atom1 (mol_implicit)");
+    assert(isEqual(mol_implicit.atoms[1].mass, 4.2) && "Incorrect mass for atom2 (mol_implicit)");
     assert(isEqual(mol_implicit.atoms[0].basis_set[0].primitives[0].alpha, 3.0) && "Incorrect alpha value for atoms[0].basis_set[0].primitives[0] (mol_implicit)");
     assert(isEqual(mol_implicit.atoms[1].basis_set[1].primitives[0].c, 3.5) && "Incorrect coefficient value for atoms[1].basis_set[1].primitives[0] (mol_implicit)");
     assert(mol_implicit.atoms[0].n_basis == 2 && "Incorrect n_basis value for atom1 (mol_implicit)");
@@ -111,6 +119,8 @@ void testMolecule(){
     assert(mol_implicit.n_atom == 2 && "Incorrect n_basis value for mol_implicit");
     assert(mol_implicit.charge == 1 && "Incorrect charge value for mol_implicit");
     
+    assert(isEqual(mol_explicit.atoms[0].mass, 3.0) && "Incorrect mass for atom1 (mol_explicit)");
+    assert(isEqual(mol_explicit.atoms[1].mass, 4.2) && "Incorrect mass for atom2 (mol_explicit)");
     assert(isEqual(mol_explicit.atoms[0].basis_set[0].primitives[0].alpha, 3.0) && "Incorrect alpha value for atoms[0].basis_set[0].primitives[0] (mol_explicit)");
     assert(isEqual(mol_explicit.atoms[1].basis_set[1].primitives[0].c, 3.5) && "Incorrect coefficient value for atoms[1].basis_set[1].primitives[0] (mol_explicit)");
     assert(mol_explicit.atoms[0].n_basis == 2 && "Incorrect n_basis value for atom1 (mol_explicit)");
