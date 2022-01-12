@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 #include "class.h"
 #include "../src/utils.h"
+#include "../src/integral.h"
 
 using namespace std;
 
@@ -12,7 +13,9 @@ Primitive::Primitive(double const& alpha_inp, double const& c_inp){
         c_inp            double                                     coefficient of the primitive gaussian
     */    
     alpha = alpha_inp;
+    assert(alpha > 0.0 && "exponent of the primitive gaussian should be positive");
     c = c_inp;
+    assert(c > 0.0 && "coefficient of the primitive gaussian should be positive");
 }
 Primitive::~Primitive(){
     // Destructor
@@ -115,11 +118,17 @@ Molecule::Molecule(const int charge_inp, vector<Atom> const& atoms_inp){
         atoms_inp        vector<Atom>(n_atom)                       atoms
     */ 
     _initialConstruct(charge_inp, atoms_inp);
+    cout << "Calculating distance matrix" << endl;
     _calcDisMat();
+    cout << "Calculating 4-indexed overlap integral" << endl;
     _calcSItg4idx();
+    cout << "Calculating 2-indexed overlap integral" << endl;
     _calcSItg();
+    cout << "Calculating kinetic energy integral" << endl;
     _calcTItg();
+    cout << "Calculating nucleus-elctron coulomb integral" << endl;
     _calcVItg();
+    cout << "Calculating 2-electron integral" << endl;
     _calcEItg();
 }
 Molecule::~Molecule(){
@@ -206,8 +215,11 @@ double Molecule::getEItg(int idx1, int idx2, int idx3, int idx4){
         Variable         Data type                                  Description
         val              double                                     integral value
     */
-    if(idx2 > idx1) swap(idx1, idx2);
-    if(idx4 > idx3) swap(idx3, idx4);
+    if(idx3 > idx1){
+        swap(idx1, idx3);
+        swap(idx2, idx4);
+    }
+    else if(idx3 == idx1 && idx4 > idx2) swap(idx2, idx4);
     double val = e_itg[idx1][idx2][idx3][idx4];
     return val;
 }
@@ -289,7 +301,7 @@ void Molecule::_initializeEItg(vector<vector<vector<vector<double>>>>& mat){
             vector<vector<double>> v2;
             for(int i2 = 0 ; i2 <= i1 ; ++i2){
                 vector<double> v1;
-                for(int j2 = 0 ; j2 <= i2 ; ++j2){
+                for(int j2 = 0 ; j2 <= (i1==i2 ? j1 : i2) ; ++j2){
                     v1.push_back(0.0);
                 }
                 v2.push_back(v1);
@@ -340,21 +352,24 @@ void Molecule::_checkDisMatCalculated(){
     return;
 }
 void Molecule::_calcSItg4idx(){
-    // calculate 4-indexed overlap integrals s_itg_4idx
+    // calculate 4-indexed overlap integrals s_itg_4idx with equation 24-1
     _checkDisMatCalculated();
-    is_s_itg_4idx_calculated = true;
+    is_s_itg_4idx_calculated = true;    
     _initializeMat4idx(s_itg_4idx);
     int basis1_idx = 0;
     for(int atom1_idx = 0 ; atom1_idx < n_atom ; ++atom1_idx){        
         Atom atom1 = atoms[atom1_idx];        
         for(const auto& basis1: atom1.basis_set){
             for(int prim1_idx = 0 ; prim1_idx < basis1.n_primitive ; ++prim1_idx){
+                Primitive prim1 = basis1.primitives[prim1_idx];
                 int basis2_idx = 0;
                 for(int atom2_idx = 0 ; atom2_idx < n_atom ; ++atom2_idx){        
                     Atom atom2 = atoms[atom2_idx];                
                     for(const auto& basis2: atom2.basis_set){                        
                         for(int prim2_idx = 0 ; prim2_idx < basis2.n_primitive ; ++prim2_idx){
-                            s_itg_4idx[basis1_idx][prim1_idx][basis2_idx][prim2_idx] = ;
+                            Primitive prim2 = basis2.primitives[prim2_idx];
+                            double s_element = calcSItg4idxElement(getZeta(prim1, prim2), getXi(prim1, prim2), getDisMat(basis1_idx, basis2_idx));
+                            s_itg_4idx[basis1_idx][prim1_idx][basis2_idx][prim2_idx] = s_element;
                         }
                         ++basis2_idx;
                         if(basis2_idx > basis1_idx) break;
@@ -368,14 +383,37 @@ void Molecule::_calcSItg4idx(){
     return;
 }
 void Molecule::_checkSItg4idxCalculated(){
-    assert(is_s_itg_4idx_calculated && "s_itg_4idx is not calculated, should call _calcSItg4idx() first");
+    assert(is_s_itg_4idx_calculated && "s_itg_4idx is not calculated, should call _calcSItg() first");
     return;
 }
 void Molecule::_calcSItg(){
-    // calculate overlap integrals s_itg    
+    // calculate kinetic energy integrals t_itg    
     _checkDisMatCalculated();
     _checkSItg4idxCalculated();
     _initializeMat2idx(s_itg);
+    int basis1_idx = 0;
+    for(int atom1_idx = 0 ; atom1_idx < n_atom ; ++atom1_idx){        
+        Atom atom1 = atoms[atom1_idx];        
+        for(const auto& basis1: atom1.basis_set){
+            for(int prim1_idx = 0 ; prim1_idx < basis1.n_primitive ; ++prim1_idx){
+                Primitive prim1 = basis1.primitives[prim1_idx];
+                int basis2_idx = 0;
+                for(int atom2_idx = 0 ; atom2_idx < n_atom ; ++atom2_idx){        
+                    Atom atom2 = atoms[atom2_idx];                
+                    for(const auto& basis2: atom2.basis_set){                        
+                        for(int prim2_idx = 0 ; prim2_idx < basis2.n_primitive ; ++prim2_idx){
+                            Primitive prim2 = basis2.primitives[prim2_idx];
+                            s_itg[basis1_idx][basis2_idx] += prim1.c*prim2.c*s_itg_4idx[basis1_idx][prim1_idx][basis2_idx][prim2_idx];
+                        }
+                        ++basis2_idx;
+                        if(basis2_idx > basis1_idx) break;
+                    }                    
+                    if(basis2_idx > basis1_idx) break;
+                }
+            }
+            ++basis1_idx;
+        }
+    }
     return;
 }
 void Molecule::_calcTItg(){
@@ -383,23 +421,179 @@ void Molecule::_calcTItg(){
     _checkDisMatCalculated();
     _checkSItg4idxCalculated();
     _initializeMat2idx(t_itg);
+    int basis1_idx = 0;
+    for(int atom1_idx = 0 ; atom1_idx < n_atom ; ++atom1_idx){        
+        Atom atom1 = atoms[atom1_idx];        
+        for(const auto& basis1: atom1.basis_set){
+            for(int prim1_idx = 0 ; prim1_idx < basis1.n_primitive ; ++prim1_idx){
+                Primitive prim1 = basis1.primitives[prim1_idx];
+                int basis2_idx = 0;
+                for(int atom2_idx = 0 ; atom2_idx < n_atom ; ++atom2_idx){        
+                    Atom atom2 = atoms[atom2_idx];                
+                    for(const auto& basis2: atom2.basis_set){                        
+                        for(int prim2_idx = 0 ; prim2_idx < basis2.n_primitive ; ++prim2_idx){
+                            Primitive prim2 = basis2.primitives[prim2_idx];
+                            double t_element = calcTElementWithS(s_itg_4idx[basis1_idx][prim1_idx][basis2_idx][prim2_idx], getXi(prim1, prim2), getDisMat(basis1_idx, basis2_idx));
+                            t_itg[basis1_idx][basis2_idx] += prim1.c*prim2.c*t_element;
+                        }
+                        ++basis2_idx;
+                        if(basis2_idx > basis1_idx) break;
+                    }                    
+                    if(basis2_idx > basis1_idx) break;
+                }
+            }
+            ++basis1_idx;
+        }
+    }
     return;
 }
 void Molecule::_calcVItg(){
     // calculate nucleus-elctron coulomb integrals t_itg       
     _checkSItg4idxCalculated();
     _initializeMat2idx(v_itg);
+    int basis1_idx = 0;
+    for(int atom1_idx = 0 ; atom1_idx < n_atom ; ++atom1_idx){        
+        Atom atom1 = atoms[atom1_idx];        
+        for(const auto& basis1: atom1.basis_set){
+            for(int prim1_idx = 0 ; prim1_idx < basis1.n_primitive ; ++prim1_idx){
+                Primitive prim1 = basis1.primitives[prim1_idx];
+                int basis2_idx = 0;
+                for(int atom2_idx = 0 ; atom2_idx < n_atom ; ++atom2_idx){        
+                    Atom atom2 = atoms[atom2_idx];                
+                    for(const auto& basis2: atom2.basis_set){                        
+                        for(int prim2_idx = 0 ; prim2_idx < basis2.n_primitive ; ++prim2_idx){
+                            Primitive prim2 = basis2.primitives[prim2_idx];
+                            vector<double> rp = calcRP(prim1.alpha, prim2.alpha, atom1.coord, atom2.coord);
+                            for(const auto& atom_i: atoms){
+                                double v_element = calcVElementWithS(s_itg_4idx[basis1_idx][prim1_idx][basis2_idx][prim2_idx], 
+                                atom_i.mass, getZeta(prim1, prim2), calcDis(atom_i.coord, rp));
+                                v_itg[basis1_idx][basis2_idx] += prim1.c*prim2.c*v_element;
+                            }
+                            rp.shrink_to_fit();
+                        }
+                        ++basis2_idx;
+                        if(basis2_idx > basis1_idx) break;
+                    }                  
+                    if(basis2_idx > basis1_idx) break;
+                }
+            }
+            ++basis1_idx;
+        }
+    }
     return;
 }
 void Molecule::_calcKFactor(){
     // calculate prefactors k for two-electron integrals
     _checkDisMatCalculated();
     _initializeMat4idx(k_factor);
+    int basis1_idx = 0;
+    for(int atom1_idx = 0 ; atom1_idx < n_atom ; ++atom1_idx){        
+        Atom atom1 = atoms[atom1_idx];        
+        for(const auto& basis1: atom1.basis_set){
+            for(int prim1_idx = 0 ; prim1_idx < basis1.n_primitive ; ++prim1_idx){
+                Primitive prim1 = basis1.primitives[prim1_idx];
+                int basis2_idx = 0;
+                for(int atom2_idx = 0 ; atom2_idx < n_atom ; ++atom2_idx){        
+                    Atom atom2 = atoms[atom2_idx];                
+                    for(const auto& basis2: atom2.basis_set){                        
+                        for(int prim2_idx = 0 ; prim2_idx < basis2.n_primitive ; ++prim2_idx){
+                            Primitive prim2 = basis2.primitives[prim2_idx];
+                            k_factor[basis1_idx][prim1_idx][basis2_idx][prim2_idx] = 
+                            calcKFactorElement(getZeta(prim1, prim2), getXi(prim1, prim2), getDisMat(basis1_idx, basis2_idx));
+                        }
+                        ++basis2_idx;
+                        if(basis2_idx > basis1_idx) break;
+                    }                    
+                    if(basis2_idx > basis1_idx) break;
+                }
+            }
+            ++basis1_idx;
+        }
+    }
     return;
 }
 void Molecule::_calcEItg(){
     // calculate two-electron integrals
-    _initializeEItg(e_itg);
     _calcKFactor();
+
+    _initializeEItg(e_itg);    
+    int basis1_idx = 0;
+    for(int atom1_idx = 0 ; atom1_idx < n_atom ; ++atom1_idx){        
+        Atom atom1 = atoms[atom1_idx];        
+        for(const auto& basis1: atom1.basis_set){
+            int basis2_idx = 0;
+            for(int atom2_idx = 0 ; atom2_idx < n_atom ; ++atom2_idx){ 
+                Atom atom2 = atoms[atom2_idx];                       
+                for(const auto& basis2: atom2.basis_set){ 
+                    int basis3_idx = 0;
+                    for(int atom3_idx = 0 ; atom3_idx < n_atom ; ++atom3_idx){
+                        Atom atom3 = atoms[atom3_idx];
+                        for(const auto& basis3: atom3.basis_set){
+                            int basis4_idx = 0;
+                            for(int atom4_idx = 0 ; atom4_idx < n_atom ; ++atom4_idx){
+                                Atom atom4 = atoms[atom4_idx];
+                                for(const auto& basis4: atom4.basis_set){                                    
+                                    e_itg[basis1_idx][basis2_idx][basis3_idx][basis4_idx] = _calcEItgElement(
+                                        atom1, atom2, atom3, atom4, basis1_idx, basis2_idx, basis3_idx, basis4_idx, basis1, basis2, basis3, basis4);
+                                    ++basis4_idx;
+                                    if(basis3_idx == basis1_idx && basis4_idx > basis2_idx) break;
+                                    if(basis4_idx > basis3_idx) break;
+                                }
+                                if(basis3_idx == basis1_idx && basis4_idx > basis2_idx) break;
+                                if(basis4_idx > basis3_idx) break;
+                            }
+                            ++basis3_idx;
+                            if(basis3_idx > basis1_idx) break;
+                        }
+                        if(basis3_idx > basis1_idx) break;
+                    }                     
+                    ++basis2_idx;
+                    if(basis2_idx > basis1_idx) break;
+                }                    
+                if(basis2_idx > basis1_idx) break;
+            }
+            ++basis1_idx;
+        }
+    }
     return;
+}
+double Molecule::_calcEItgElement(const Atom atom1, const Atom atom2, const Atom atom3, const Atom atom4,
+const int basis1_idx, const int basis2_idx, const int basis3_idx, const int basis4_idx,
+const Basis basis1, const Basis basis2, const Basis basis3, const Basis basis4){
+    /* 
+    Calculate element of the 2-electron integral with equation 36, 37   
+    Input:
+        Variable         Data type                                  Description
+        atom1~4          Atom                                       atoms
+        basis_idx1~4     int                                        indexes of bases
+        basis1~4         Basis                                      bases
+    Return:
+        Variable         Data type                                  Description
+        val              double                                     2-electron integral element
+    */
+    double val = 0.0;
+    for(int prim1_idx = 0 ; prim1_idx < basis1.n_primitive ; ++prim1_idx){
+        for(int prim2_idx = 0 ; prim2_idx < basis2.n_primitive ; ++prim2_idx){
+            for(int prim3_idx = 0 ; prim3_idx < basis3.n_primitive ; ++prim3_idx){
+                for(int prim4_idx = 0 ; prim4_idx < basis4.n_primitive ; ++prim4_idx){
+                    vector<double> rp1, rp2;
+                    Primitive prim1 = basis1.primitives[prim1_idx];
+                    Primitive prim2 = basis2.primitives[prim2_idx];
+                    Primitive prim3 = basis3.primitives[prim3_idx];
+                    Primitive prim4 = basis4.primitives[prim4_idx];
+                    rp1 = calcRP(prim1.alpha, prim2.alpha, atom1.coord, atom2.coord);
+                    rp2 = calcRP(prim3.alpha, prim4.alpha, atom3.coord, atom4.coord);
+                    double rpq = calcDis(rp1, rp2);
+                    double zeta1 = getZeta(prim1, prim2);
+                    double zeta2 = getZeta(prim3, prim4);
+                    double k1 = k_factor[basis1_idx][prim1_idx][basis2_idx][prim2_idx];
+                    double k2 = k_factor[basis3_idx][prim3_idx][basis4_idx][prim4_idx];
+                    e_itg[basis1_idx][basis2_idx][basis3_idx][basis4_idx] += calcEItgElementWithKs(zeta1, zeta2, k1, k2, rpq);
+                    rp1.shrink_to_fit();
+                    rp2.shrink_to_fit();
+                }
+            }
+        }
+    }
+    return val;
 }

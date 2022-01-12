@@ -12,5 +12,6 @@
 <ul>
 <li> Update Atom class (added mass) </li>
 <li> Update unit test for Atom and Molecule classes </li>
-<li> Molecule class 40% done (initialization of integrals) </li>
+<li> Molecule class 70% done (calculate integrals) </li>
+<li> Added integrals.cpp for integral calculation </li>
 </ul>

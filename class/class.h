@@ -113,12 +113,13 @@ class Molecule
     void _initializeEItg(vector<vector<vector<vector<double>>>>& );
     void _calcNBasis();
     void _calcDisMat();
-    void _checkDisMatCalculated();
-    void _calcSItg4idx();    
-    void _checkSItg4idxCalculated();    
-    void _calcSItg();
+    void _checkDisMatCalculated();    
+    void _calcSItg4idx();
+    void _checkSItg4idxCalculated();
+    void _calcSItg();    
     void _calcTItg();
     void _calcVItg();
     void _calcKFactor();
     void _calcEItg();
+    double _calcEItgElement(const Atom , const Atom , const Atom , const Atom , const int , const int , const int , const int , const Basis , const Basis , const Basis , const Basis );
 };
