@@ -16,7 +16,10 @@
 <li> Added integrals.cpp for integral calculation </li>
 </ul>
 
-## 2022/01/12
+## 2022/01/13
 <ul>
 <li> Update Atom, Basis, Molecule class (change Atom to member of Basis) </li>
+<li> Completed Molecule class </li>
+<li> Installed Boost library </li>
+<li> Completed read_input.cpp </li>
 </ul>

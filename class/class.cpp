@@ -15,7 +15,6 @@ Primitive::Primitive(double const& alpha_inp, double const& c_inp) : alpha(alpha
     alpha = alpha_inp;
     assert(alpha > 0.0 && "exponent of the primitive gaussian should be positive");
     c = c_inp;
-    assert(c > 0.0 && "coefficient of the primitive gaussian should be positive");
 }
 Primitive::~Primitive(){
     // Destructor
@@ -48,18 +47,18 @@ double getXi(Primitive p1, Primitive p2){
     double xi = p1.alpha*p2.alpha / (p1.alpha+p2.alpha);
     return xi;
 }
-Atom::Atom(vector<double> const& coord_inp, const double mass_inp) : coord(coord_inp), mass(mass_inp){
+Atom::Atom(vector<double> const& coord_inp, const int z_inp) : coord(coord_inp), z(z_inp){
     /* Constructor
     Input:
         Variable         Data type                                  Description
         coord_inp        vector<double>(3)                          atomic coordinate in Bohr
-        mass_inp         double                                     nuclear mass
+        z_inp            int                                        nuclear charge
     */
-    assert(mass > 0.0 && "mass should be positive");
+    assert(z > 0 && "nuclear charge should be positive");
 }
 Atom::~Atom(){
     // Destructor
-    coord.shrink_to_fit();
+    coord.clear();
 }
 double Atom::operator - (Atom const& atom2){
     // Get distance between two atoms
@@ -73,37 +72,13 @@ Basis::Basis(vector<Primitive> const& primitives_inp, const Atom& atom_inp) : pr
         atom_inp         Atom                                       atom which the basis is located on
     */
     n_primitive = primitives.size();
+    assert(n_primitive > 0 && "Number of primitive gaussians should be positive");
 }
 Basis::~Basis(){
     // Destructor
-    primitives.shrink_to_fit();
+    primitives.clear();
 }
-Molecule::Molecule(const int charge_inp,
-vector<Atom> const& atoms_inp, 
-vector<Basis> const& basis_set_inp,
-vector<vector<double>> const& s_itg_inp, 
-vector<vector<double>> const& t_itg_inp, 
-vector<vector<double>> const& v_itg_inp, 
-vector<vector<vector<vector<double>>>> const& e_itg_inp){
-    /* Constructor
-    Read integral from input file explicitly
-    Input:
-        Variable         Data type                                  Description
-        charge_inp       int                                        charge
-        atoms_inp        vector<Atom>(n_atom)                       atoms
-        basis_set_inp    vector<Basis>(n_basis)                     basis set of all basis functions
-        s_itg_inp        vector<vector<double>>                     overlap integrals (optional)
-        t_itg_inp        vector<vector<double>>                     kinetic integrals (optional)
-        v_itg_inp        vector<vector<double>>                     nucleus-electron columb integrals (optional)
-        e_itg_inp        vector<vector<vector<vector<double>>>>     two-electron integrals (optional)
-    */ 
-    _initialConstruct(charge_inp, atoms_inp, basis_set_inp);
-    s_itg = s_itg_inp;
-    t_itg = t_itg_inp;
-    v_itg = v_itg_inp;
-    e_itg = e_itg_inp;
-}    
-Molecule::Molecule(const int charge_inp, vector<Atom> const& atoms_inp, vector<Basis> const& basis_set_inp){
+Molecule::Molecule(const int charge_inp, vector<Atom> const& atoms_inp, vector<Basis> const& basis_set_inp, const bool is_read_itg){
     /* Constructor
     Compute integrals implicitly
     Input:
@@ -111,32 +86,45 @@ Molecule::Molecule(const int charge_inp, vector<Atom> const& atoms_inp, vector<B
         charge_inp       int                                        charge
         atoms_inp        vector<Atom>(n_atom)                       atoms
         basis_set_inp    vector<Basis>(n_basis)                     basis set of all basis functions
-    */ 
-    _initialConstruct(charge_inp, atoms_inp, basis_set_inp);
-    cout << "Calculating distance matrix" << endl;
-    _calcDisMat();
-    cout << "Calculating 4-indexed overlap integral" << endl;
-    _calcSItg4idx();
-    cout << "Calculating 2-indexed overlap integral" << endl;
-    _calcSItg();
-    cout << "Calculating kinetic energy integral" << endl;
-    _calcTItg();
-    cout << "Calculating nucleus-elctron coulomb integral" << endl;
-    _calcVItg();
-    cout << "Calculating 2-electron integral" << endl;
-    _calcEItg();
+        is_read_itg      bool                                       read integral from file explicitly
+    */
+    if(is_read_itg){
+        cout << "Constructing molecule with explicit integrals" << endl;
+        _initialConstruct(charge_inp, atoms_inp, basis_set_inp);
+        _initializeMat2idx(s_itg);
+        _initializeMat2idx(t_itg);
+        _initializeMat2idx(v_itg);
+        _initializeEItg(e_itg);
+    }
+    else{
+        cout << "Constructing molecule with implicitly calculated integrals" << endl;
+        _initialConstruct(charge_inp, atoms_inp, basis_set_inp);
+        cout << "Calculating distance matrix" << endl;
+        _calcDisMat();
+        cout << "Calculating 4-indexed overlap integral" << endl;
+        _calcSItg4idx();
+        cout << "Calculating 2-indexed overlap integral" << endl;
+        _calcSItg();
+        cout << "Calculating kinetic energy integral" << endl;
+        _calcTItg();
+        cout << "Calculating nucleus-elctron coulomb integral" << endl;
+        _calcVItg();
+        cout << "Calculating 2-electron integral" << endl;
+        _calcEItg();
+    }   
+    cout << "Molecule object constructed" << endl;
 }
 Molecule::~Molecule(){
     // Destructor
-    atoms.shrink_to_fit();
-    basis_set.shrink_to_fit();
-    dis_mat.shrink_to_fit();
-    s_itg.shrink_to_fit();
-    t_itg.shrink_to_fit();
-    v_itg.shrink_to_fit();
-    e_itg.shrink_to_fit();
-    s_itg_4idx.shrink_to_fit();
-    k_factor.shrink_to_fit();
+    atoms.clear();
+    basis_set.clear();
+    dis_mat.clear();
+    s_itg.clear();
+    t_itg.clear();
+    v_itg.clear();
+    e_itg.clear();
+    s_itg_4idx.clear();
+    k_factor.clear();
 }
 double Molecule::getDisMat(int idx1, int idx2){
     /*
@@ -227,6 +215,7 @@ void Molecule::_initialConstruct(const int charge_inp, vector<Atom> const& atoms
     assert(n_atom > 0 && "Number of atoms should be positive");
     basis_set = basis_set_inp;
     n_basis = basis_set.size();
+    assert(n_basis > 0 && "Number of basis functions should be positive");
     return;
 }
 void Molecule::_initializeMat2idx(vector<vector<double>>& mat){
@@ -235,6 +224,7 @@ void Molecule::_initializeMat2idx(vector<vector<double>>& mat){
     Input:
         Variable         Data type                                  Description
         mat              vector<vector<double>>                     matrix to be initialized
+        n_basis          int                                        basis set size
     */
     for(int i = 0 ; i < n_basis ; ++i){
         vector<double> v1;
@@ -242,7 +232,7 @@ void Molecule::_initializeMat2idx(vector<vector<double>>& mat){
             v1.push_back(0.0);
         }
         mat.push_back(v1);
-        v1.shrink_to_fit();
+        v1.clear();
     }
     return;
 }
@@ -252,6 +242,7 @@ void Molecule::_initializeMat4idx(vector<vector<vector<vector<double>>>>& mat){
     Input:
         Variable         Data type                                  Description
         mat              vector<vector<vector<vector<double>>>>     matrix to be initialized
+        basis_set        vector<Basis>                              basis set
     */     
     for(int basis1_idx = 0 ; basis1_idx < n_basis ; ++basis1_idx){
         Basis basis1 = basis_set[basis1_idx];
@@ -265,13 +256,13 @@ void Molecule::_initializeMat4idx(vector<vector<vector<vector<double>>>>& mat){
                     v1.push_back(0);
                 }
                 v2.push_back(v1);
-                v1.shrink_to_fit();
+                v1.clear();
             }
             v3.push_back(v2);
-            v2.shrink_to_fit();
+            v2.clear();
         }
         mat.push_back(v3);
-        v3.shrink_to_fit();
+        v3.clear();
     }
     return;
 }
@@ -281,6 +272,7 @@ void Molecule::_initializeEItg(vector<vector<vector<vector<double>>>>& mat){
     Input:
         Variable         Data type                                  Description
         mat              vector<vector<vector<vector<double>>>>     matrix to be initialized
+        n_basis          int                                        basis set size
     */
     for(int i1 = 0 ; i1 < n_basis ; ++i1){
         vector<vector<vector<double>>> v3;
@@ -289,16 +281,17 @@ void Molecule::_initializeEItg(vector<vector<vector<vector<double>>>>& mat){
             for(int i2 = 0 ; i2 <= i1 ; ++i2){
                 vector<double> v1;
                 for(int j2 = 0 ; j2 <= (i1==i2 ? j1 : i2) ; ++j2){
+                    //cout << i1 << ' ' << j1 << ' ' << i2 << ' ' << j2 << endl;
                     v1.push_back(0.0);
                 }
                 v2.push_back(v1);
-                v1.shrink_to_fit();
+                v1.clear();
             }
             v3.push_back(v2);
-            v2.shrink_to_fit();
+            v2.clear();
         }
         mat.push_back(v3);
-        v3.shrink_to_fit();
+        v3.clear();
     }
     return;
 }
@@ -400,10 +393,10 @@ void Molecule::_calcVItg(){
                     vector<double> rp = calcRP(prim1.alpha, prim2.alpha, basis1.atom.coord, basis2.atom.coord);
                     for(const auto& atom_i: atoms){
                         double v_element = calcVElementWithS(s_itg_4idx[basis1_idx][prim1_idx][basis2_idx][prim2_idx], 
-                        atom_i.mass, getZeta(prim1, prim2), calcDis(atom_i.coord, rp));
+                        double(atom_i.z), getZeta(prim1, prim2), calcDis(atom_i.coord, rp));
                         v_itg[basis1_idx][basis2_idx] += prim1.c*prim2.c*v_element;
                     }
-                    rp.shrink_to_fit();
+                    rp.clear();
                 }
             }
         }
@@ -421,6 +414,7 @@ void Molecule::_calcKFactor(){
             for(int basis2_idx = 0 ; basis2_idx <= basis1_idx ; ++basis2_idx){
                 Basis basis2 = basis_set[basis2_idx];
                 for(int prim2_idx = 0 ; prim2_idx < basis2.n_primitive ; ++prim2_idx){
+                    //cout << basis1_idx << ' ' << prim1_idx << ' ' << basis2_idx << ' ' << prim2_idx << endl;
                     Primitive prim2 = basis2.primitives[prim2_idx];
                     k_factor[basis1_idx][prim1_idx][basis2_idx][prim2_idx] = 
                     calcKFactorElement(getZeta(prim1, prim2), getXi(prim1, prim2), getDisMat(basis1_idx, basis2_idx));
@@ -438,12 +432,13 @@ void Molecule::_calcEItg(){
         for(int basis2_idx = 0 ; basis2_idx <= basis1_idx ; ++basis2_idx){
             for(int basis3_idx = 0 ; basis3_idx <= basis1_idx ; ++basis3_idx){
                 for(int basis4_idx = 0 ; basis4_idx <= (basis1_idx==basis3_idx ? basis2_idx : basis3_idx) ; ++basis4_idx){
+                    //cout << basis1_idx << ' ' << basis2_idx << ' ' << basis3_idx << ' ' << basis4_idx << endl;
                     e_itg[basis1_idx][basis2_idx][basis3_idx][basis4_idx] = 
                     _calcEItgElement(basis1_idx, basis2_idx, basis3_idx, basis4_idx);
                 }
             }
         }
-    } 
+    }
     return;
 }
 double Molecule::_calcEItgElement(const int basis1_idx, const int basis2_idx, const int basis3_idx, const int basis4_idx){
@@ -478,8 +473,8 @@ double Molecule::_calcEItgElement(const int basis1_idx, const int basis2_idx, co
                     double k1 = k_factor[basis1_idx][prim1_idx][basis2_idx][prim2_idx];
                     double k2 = k_factor[basis3_idx][prim3_idx][basis4_idx][prim4_idx];
                     val += prim1.c*prim2.c*prim3.c*prim4.c*calcEItgElementWithKs(zeta1, zeta2, k1, k2, rpq);
-                    rp1.shrink_to_fit();
-                    rp2.shrink_to_fit();
+                    rp1.clear();
+                    rp2.clear();
                 }
             }
         }

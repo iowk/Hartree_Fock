@@ -27,13 +27,13 @@ class Atom
     Members:
         Variable         Data type                                  Description
         coord            vector<double>(3)                          atomic coordinate in Bohr
-        mass             double                                     nuclear mass
+        z                double                                     nuclear charge
     */  
     public:
         vector<double> coord = vector<double>(3);
-        double mass;
+        double z;
 
-        Atom(vector<double> const& , const double );
+        Atom(vector<double> const& , const int );
         ~Atom();
         double operator - (Atom const& );
 };
@@ -92,20 +92,13 @@ class Molecule
         bool is_dis_calculated = false;
         bool is_s_itg_4idx_calculated = false;
         
-        Molecule(const int ,
-        vector<Atom> const& , 
-        vector<Basis> const& ,
-        vector<vector<double>> const& , 
-        vector<vector<double>> const& , 
-        vector<vector<double>> const& , 
-        vector<vector<vector<vector<double>>>> const& );
-        Molecule(const int , vector<Atom> const& , vector<Basis> const& );
+        Molecule(const int , vector<Atom> const& , vector<Basis> const& , const bool );
         ~Molecule();
         double getDisMat(int, int );
         double getSItg(int , int );
         double getTItg(int , int );
         double getVItg(int , int );
-        double getEItg(int , int , int , int );
+        double getEItg(int , int , int , int );        
 
     private:
         void _initialConstruct(const int, vector<Atom> const& , vector<Basis> const& );

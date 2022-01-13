@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include "utils.h"
+#include "../class/class.h"
 #define EPSILON 0.000000001
 
 using namespace std;
@@ -27,7 +28,7 @@ double angstromToBohr(const double r_angstrom){
         r_bohr           double                                     variable in Bohr
     */  
     double r_bohr = 1.8897259886 * r_angstrom;
-    return r_angstrom;
+    return r_bohr;
 }
 double calcDis(vector<double> const& coord1, vector<double> const& coord2){
     /*    

@@ -6,8 +6,8 @@ using namespace std;
 void testClasses(){
     cout << "Testing classes" << endl;
     testPrimitive();
-    testBasis();
     testAtom();
+    testBasis();
     testMolecule();
     cout << "Test classes passed" << endl << endl ;
 }
