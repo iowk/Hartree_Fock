@@ -15,3 +15,8 @@
 <li> Molecule class 70% done (calculate integrals) </li>
 <li> Added integrals.cpp for integral calculation </li>
 </ul>
+
+## 2022/01/12
+<ul>
+<li> Update Atom, Basis, Molecule class (change Atom to member of Basis) </li>
+</ul>
