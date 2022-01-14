@@ -1,0 +1,2 @@
+void testReadInput();
+void testReadOutput();

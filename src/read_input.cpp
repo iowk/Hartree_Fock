@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
 #include <boost/algorithm/string.hpp>
-#include "../class/class.h"
 #include "read_input.h"
 #include "utils.h"
 
@@ -27,7 +26,7 @@ void setWordMap(map<string, string>& word_map){
     return;
 }
 
-void readMolecule(ifstream& inp_file, const bool is_read_itg){
+Molecule readMolecule(ifstream& inp_file, const bool is_read_itg){
     /*
     Read molecule object from input file
     Input:
@@ -85,8 +84,7 @@ void readMolecule(ifstream& inp_file, const bool is_read_itg){
             }
             else if(is_read_itg){
                 if(word_map[line].substr(1,-1) == "_itg"){
-                    cout << "Integrals should be put at the end of the input file" << endl;
-                    return;
+                    assert(false && "Integrals should be put at the end of the input file");
                 }
             }
             if(is_atom_coord_read && is_charge_read && is_basis_read) break; 
@@ -131,19 +129,19 @@ void readMolecule(ifstream& inp_file, const bool is_read_itg){
         assert(is_v_itg_read && "Nucleus-electron coulomb integrals not read");
         assert(is_e_itg_read && "2-electron integrals not read");
     }
-    cout << "S[0][0]: " << mol.s_itg[0][0] << endl;
+    /*cout << "S[0][0]: " << mol.s_itg[0][0] << endl;
     cout << "T[0][0]: " << mol.t_itg[0][0] << endl;
     cout << "V[0][0]: " << mol.v_itg[0][0] << endl;
     cout << "E[0][0][0][0]: " << mol.e_itg[0][0][0][0] << endl;
     cout << "S[1][0]: " << mol.s_itg[1][0] << endl;
     cout << "T[1][0]: " << mol.t_itg[1][0] << endl;
     cout << "V[1][0]: " << mol.v_itg[1][0] << endl;
-    cout << "E[1][0][1][0]: " << mol.e_itg[1][0][1][0] << endl; 
+    cout << "E[1][0][1][0]: " << mol.e_itg[1][0][1][0] << endl;*/ 
     atoms.clear();
     basis_set.clear();
     word_map.clear();
     cout << "Read file complete" << endl;
-    return;
+    return mol;
 }
 int readInt(ifstream& inp_file){
     /*

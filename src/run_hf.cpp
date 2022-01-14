@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
 #include "read_input.h"
-#include "../class/class.h"
 
 using namespace std;
 
@@ -21,7 +20,7 @@ int main(){
         else{
             cout << "Integrals will be calculated implicitly" << endl;
         }
-        readMolecule(inp_file, is_read_itg);
+        Molecule mol = readMolecule(inp_file, is_read_itg);
     }
     else{
         cout << "Unable to open file" << endl;
