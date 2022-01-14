@@ -1,0 +1,47 @@
+#############################################
+#####   TCCM DISTANCE UNIT 2021      ########
+#####   Debugging info for sample inputs ####
+#############################################
+
+Atomic coordinates (in Angstrom)
+He     2    0.000000    0.000000    0.000000
+H      1    0.000000    0.000000    0.900000
+Atomic coordinates (in Bohr)
+He     2    0.000000    0.000000    0.000000
+H      1    0.000000    0.000000    1.700754
+ Nuclear Repulsion Energy:
+          1.175949
+ Inverse Square Root of Overlap Matrix S^-1/2:
+   1      1.090783     -0.261149
+   2     -0.261149      1.090783
+ Core Hamiltonian:
+   1     -2.512352     -1.167366
+   2     -1.167366     -1.589024
+ Core Hamiltonian in Orthogonal BAsis:
+   1     -2.432520     -0.300250
+   2     -0.300250     -1.396908
+ Eigenvalues of the core hamiltonian:
+   1 -    2     -2.513273     -1.316155
+ At first SCF cycle, electronic energy:
+         -3.986021
+ At first SCF cycle, total energy:
+         -2.810072
+SCF Procedure converged after cycles :        8
+ Final electronic energy:
+         -4.029993
+ Final total energy:
+         -2.854044
+ Converged orbital eigenvalues:
+   1 -    2     -1.542913     -0.252167
+ Converged orbital coefficients (orbital by orbital):
+   1     -0.895474     -0.196617
+   2      0.675376     -1.104241
+ Final Fock matrix:
+   1     -1.503249     -0.879386
+   2     -0.879386     -0.720171
+ Final Fock matrix in orthogonal basis:
+   1     -1.336694     -0.472917
+   2     -0.472917     -0.458387
+ Final density matrix:
+   1      0.801873      0.176065
+   2      0.176065      0.038658

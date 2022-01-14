@@ -23,3 +23,8 @@
 <li> Installed Boost library </li>
 <li> Completed read_input.cpp </li>
 </ul>
+
+## 2022/01/14
+<ul>
+<li> Move integral calculation from Molecule to integral.cpp </li>
+</ul>

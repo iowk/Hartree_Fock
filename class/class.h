@@ -73,7 +73,6 @@ class Molecule
         e_itg            vector<vector<vector<vector<double>>>>(n_basis, n_basis, n_basis, n_basis)   two-electron integrals
         dis_mat          vector<vector<double>>(n_basis, n_basis)   distance matrix
         s_itg_4idx       vector<vector<vector<vector<double>>>>(n_basis, n_prim, n_basis, n_prim)   overlap integrals (4-indexed)
-        k_factor         vector<vector<vector<vector<double>>>>(n_basis, n_prim, n_basis, n_prim)   prefactors k for two-electron integrals
         is_s_itg_4idx_calculated    bool                            Record if s_itg_4idx calculated            
     */  
     public:
@@ -88,9 +87,6 @@ class Molecule
         vector<vector<vector<vector<double>>>> e_itg;
         vector<vector<double>> dis_mat; 
         vector<vector<vector<vector<double>>>> s_itg_4idx;
-        vector<vector<vector<vector<double>>>> k_factor;
-        bool is_dis_calculated = false;
-        bool is_s_itg_4idx_calculated = false;
         
         Molecule(const int , vector<Atom> const& , vector<Basis> const& , const bool );
         ~Molecule();
@@ -102,18 +98,4 @@ class Molecule
 
     private:
         void _initialConstruct(const int, vector<Atom> const& , vector<Basis> const& );
-        void _initializeMat2idx(vector<vector<double>>& );
-        void _initializeMat4idx(vector<vector<vector<vector<double>>>>& );
-        void _initializeEItg(vector<vector<vector<vector<double>>>>& );
-        void _calcNBasis();
-        void _calcDisMat();
-        void _checkDisMatCalculated();    
-        void _calcSItg4idx();
-        void _checkSItg4idxCalculated();
-        void _calcSItg();    
-        void _calcTItg();
-        void _calcVItg();
-        void _calcKFactor();
-        void _calcEItg();
-        double _calcEItgElement(const int , const int , const int , const int );
 };
