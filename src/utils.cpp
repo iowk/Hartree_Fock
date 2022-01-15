@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 #include "utils.h"
 #include "../class/class.h"
-#define EPSILON 0.000000001
+#define ERROR_THRES 0.000001
 
 using namespace std;
 
@@ -13,10 +13,55 @@ double isEqual(const double n1, const double n2){
         n2               double                                     double number 2
     Return:
         Variable         Data type                                  Description
-        is_equal         bool                                       check if abs(n1-n2) < epsilon
+                         bool                                       check if abs(n1-n2) < epsilon
     */  
-    bool is_equal = abs(n1-n2) < EPSILON;
-    return is_equal;
+    return abs(n1-n2) < ERROR_THRES;
+}
+bool isItg2idxEqual(vector<vector<double>> const& v1, vector<vector<double>> const& v2){
+    /*    
+    Input:
+        Variable         Data type                                  Description
+        v1               vector<vector<double>>                     integral 1
+        v2               vector<vector<double>>                     integral 2
+    Return:
+        Variable         Data type                                  Description
+                         bool                                       check if abs(n1-n2) < epsilon
+    */
+    int n_basis = v1.size();
+    for(int i = 0 ; i < n_basis ; ++i){
+        for(int j = 0 ; j <= i ; ++j){
+            if(!isEqual(v1[i][j], v2[i][j])){
+                /*cout << i << ' ' << j << endl;
+                cout << v1[i][j] << ' ' << v2[i][j] << endl;*/
+                return false;
+            }
+        }
+    }
+    return true;
+}
+bool isEItgEqual(vector<vector<vector<vector<double>>>> const& v1, vector<vector<vector<vector<double>>>> const& v2){
+    /*    
+    Input:
+        Variable         Data type                                  Description
+        v1               vector<vector<vector<vector<double>>>>     integral 1
+        v2               vector<vector<vector<vector<double>>>>     integral 2
+    Return:
+        Variable         Data type                                  Description
+                         bool                                       check if abs(n1-n2) < epsilon
+    */
+    int n_basis = v1.size();
+    for(int i1 = 0 ; i1 < n_basis ; ++i1){
+        for(int j1 = 0 ; j1 <= i1 ; ++j1){
+            for(int i2 = 0 ; i2 <= i1 ; ++i2){
+                for(int j2 = 0 ; j2 <= (i1==i2 ? j1 : i2) ; ++j2){
+                    if(!isEqual(v1[i1][j1][i2][j2], v2[i1][j1][i2][j2])){
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    return true;
 }
 double angstromToBohr(const double r_angstrom){
     /*    

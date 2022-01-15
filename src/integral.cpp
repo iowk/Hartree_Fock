@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 #include "../class/class.h"
 #include "../src/utils.h"
-#define EPSILON 0.000000001
+#define EPSILON 0.00001
 
 using namespace std;
 
@@ -17,7 +17,7 @@ double _boysFunction(const double x){
     */
     if(abs(x) < EPSILON) return 1.0;
     assert(x >= 0.0 && "input of Boys function should be non-negative");
-    double val = 0.5 * sqrt(M_PI/x) * erf(x);
+    double val = 0.5 * sqrt(M_PI/x) * erf(sqrt(x));
     return val;
 }
 vector<double> _calcRP(const double alpha1, const double alpha2, vector<double> const& coord1, vector<double> const& coord2){
@@ -71,20 +71,20 @@ double _calcTElementWithS(const double s_element, const double xi, const double 
     double val = xi * (3.0 - 2.0*xi*dis*dis) * s_element;
     return val;
 }
-double _calcVElementWithS(const double s_element, const double mass, const double zeta, const double dis){
+double _calcVElementWithS(const double s_element, const double charge, const double zeta, const double dis){
     /* 
-    Calculate 4-indexed nucleus-electron coulomb integral with equation 31 
+    Calculate 5-indexed nucleus-electron coulomb integral with equation 31 
     Input:
         Variable         Data type                                  Description
         s_element        double                                     element of s_itg_4idx
-        mass             double                                     nuclear mass
+        charge           double                                     nuclear charge
         zeta             double                                     sum of gaussian exponents
         dis              double                                     rIP
     Return:
         Variable         Data type                                  Description
         val              double                                     4-indexed kinetic energy integral
     */
-    double val = -2.0 * mass * sqrt(zeta/M_PI) * _boysFunction(zeta*dis*dis) * s_element;
+    double val = -2.0 * charge * sqrt(zeta/M_PI) * _boysFunction(zeta*dis*dis) * s_element;
     return val;
 }
 double _calcKFactorElement(const double zeta, const double xi, const double dis){

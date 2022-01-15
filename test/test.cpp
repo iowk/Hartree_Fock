@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 #include "test_classes.h"
 #include "test_readfile.h"
+#include "test_integral.h"
 
 using namespace std;
 
@@ -18,8 +19,8 @@ void testReadFile(){
     //testReadOutput();
     cout << "Test read file passed" << endl << endl;
 }
-
 int main(){
     testClasses();
     testReadFile();
+    testIntegrals();
 }

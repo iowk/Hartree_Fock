@@ -26,5 +26,12 @@
 
 ## 2022/01/14
 <ul>
-<li> Move integral calculation from Molecule to integral.cpp </li>
+<li> Moved integral calculation from Molecule to integral.cpp </li>
+<li> Added unit test for read_input </li>
+</ul>
+
+## 2022/01/15
+<ul>
+<li> Bug fix on integral.cpp/_boysFunction() </li>
+<li> Added unit test for integrals </li>
 </ul>

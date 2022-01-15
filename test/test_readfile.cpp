@@ -19,8 +19,9 @@ void testReadInput(){
         assert(mol_implicit.e_itg.size() == mol_implicit.n_basis && "Incorrect size for e_itg (mol_implicit)");
 
         inp_file.clear();
-        inp_file.seekg(0, ios::beg);
+        inp_file.seekg(0, ios::beg);        
         Molecule mol_explicit = readMolecule(inp_file, true);
+        inp_file.close();
         assert(mol_explicit.s_itg.size() == mol_explicit.n_basis && "Incorrect size for s_itg (mol_explicit)");
         assert(mol_explicit.t_itg.size() == mol_explicit.n_basis && "Incorrect size for t_itg (mol_explicit)");
         assert(mol_explicit.v_itg.size() == mol_explicit.n_basis && "Incorrect size for v_itg (mol_explicit)");
@@ -30,5 +31,6 @@ void testReadInput(){
 }
 void testReadOutput(){
     // Test read output file with sample data
+    // TODO
     cout << "Test read output passed" << endl;
 }

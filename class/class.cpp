@@ -103,7 +103,6 @@ Molecule::Molecule(const int charge_inp, vector<Atom> const& atoms_inp, vector<B
         calcVItg(v_itg, s_itg_4idx, basis_set, atoms);
         calcEItg(e_itg, basis_set, atoms, dis_mat);
     }   
-    cout << "Molecule object constructed" << endl;
 }
 Molecule::~Molecule(){
     // Destructor

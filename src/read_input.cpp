@@ -55,28 +55,23 @@ Molecule readMolecule(ifstream& inp_file, const bool is_read_itg){
         if(word_map.find(line) != word_map.end()){
             if(word_map[line] == "skip") continue;
             else if(word_map[line] == "n_atom"){
-                cout << "Reading number of atoms" << endl; 
                 n_atom = readInt(inp_file);
                 is_n_atom_read = true;
             }
             else if(word_map[line] == "n_basis"){
-                cout << "Reading number of basis functions" << endl; 
                 n_basis = readInt(inp_file);
                 is_n_basis_read = true;
             }
             else if(word_map[line] == "charge"){
-                cout << "Reading molecular charge" << endl; 
                 charge = readInt(inp_file);
                 is_charge_read = true;
             }
             else if(word_map[line] == "atom_coord"){ 
-                assert(is_n_atom_read && "Number of atoms should be read before atomic coordinates");
-                cout << "Reading atomic coordinates" << endl;               
+                assert(is_n_atom_read && "Number of atoms should be read before atomic coordinates");             
                 readAtomCoord(inp_file, atoms, n_atom);
                 is_atom_coord_read = true;
             }            
             else if(word_map[line] == "basis"){
-                cout << "Reading basis set" << endl; 
                 assert(is_atom_coord_read && "Atomic coordinates should be read before basis set");
                 assert(is_n_basis_read && "Number of basis functions should be read before basis set");
                 readBasis(inp_file, basis_set, atoms, n_basis);
@@ -103,23 +98,19 @@ Molecule readMolecule(ifstream& inp_file, const bool is_read_itg){
         bool is_e_itg_read = false;
         while(getline(inp_file, line)){
             trim(line);
-            if(word_map[line] == "s_itg"){
-                cout << "Reading overlap integrals" << endl;
+            if(word_map[line] == "s_itg"){                
                 readItg2idx(inp_file, mol.s_itg, n_basis);
                 is_s_itg_read = true;
             }
             else if(word_map[line] == "t_itg"){
-                cout << "Reading kinetic energy integrals" << endl;
                 readItg2idx(inp_file, mol.t_itg, n_basis);
                 is_t_itg_read = true;
             }
             else if(word_map[line] == "v_itg"){
-                cout << "Reading nucleus-electron coulomb integrals" << endl;
                 readItg2idx(inp_file, mol.v_itg, n_basis);
                 is_v_itg_read = true;
             }            
             else if(word_map[line] == "e_itg"){
-                cout << "Reading 2-electron integrals" << endl;
                 readEItg(inp_file, mol.e_itg, n_basis);
                 is_e_itg_read = true;
             }            
@@ -140,7 +131,6 @@ Molecule readMolecule(ifstream& inp_file, const bool is_read_itg){
     atoms.clear();
     basis_set.clear();
     word_map.clear();
-    cout << "Read file complete" << endl;
     return mol;
 }
 int readInt(ifstream& inp_file){
@@ -265,7 +255,7 @@ void readEItg(ifstream& inp_file, vector<vector<vector<vector<double>>>>& mat, c
         mat[stoi(ls[0])-1][stoi(ls[1])-1][stoi(ls[2])-1][stoi(ls[3])-1] = stod(ls[4]);
         assert(ls.size() == 5 && "There should be 5 columns");
         assert((stoi(ls[0]) >= stoi(ls[1]) && stoi(ls[2]) >= stoi(ls[3]) && stoi(ls[0]) >= stoi(ls[2]) && (stoi(ls[0]) != stoi(ls[2]) || stoi(ls[1]) >= stoi(ls[3]))) && "Incorrect integral index");
-        if(stoi(ls[0]) == n_basis && stoi(ls[1]) == n_basis) break;
+        if(stoi(ls[0]) == n_basis && stoi(ls[1]) == n_basis && stoi(ls[2]) == n_basis && stoi(ls[3]) == n_basis) break;
         ls.clear();
     }
     return;
