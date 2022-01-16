@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 #include <filesystem>
 #include "test_readfile.h"
-#include "../src/read_input.h"
+#include "../src/read_file.h"
 
 using namespace std;
 
@@ -31,6 +31,12 @@ void testReadInput(){
 }
 void testReadOutput(){
     // Test read output file with sample data
-    // TODO
+    string inp_dir_path = "output/";
+    for(const auto & inp_file_path: filesystem::directory_iterator(inp_dir_path)){
+        cout << "Reading " << inp_file_path.path() << endl;
+        ifstream inp_file(inp_file_path.path());
+        assert(inp_file.is_open() && "Cannot open file");
+        double e_tot = readOutputEnergy(inp_file);
+    }
     cout << "Test read output passed" << endl;
 }

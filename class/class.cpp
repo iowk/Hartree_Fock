@@ -157,7 +157,7 @@ double Molecule::getTItg(int idx1, int idx2){
         val              double                                     integral value
     */
     if(idx2 > idx1) swap(idx1, idx2);
-    double val = s_itg[idx1][idx2];
+    double val = t_itg[idx1][idx2];
     return val;
 }
 double Molecule::getVItg(int idx1, int idx2){
@@ -172,7 +172,7 @@ double Molecule::getVItg(int idx1, int idx2){
         val              double                                     integral value
     */
     if(idx2 > idx1) swap(idx1, idx2);
-    double val = s_itg[idx1][idx2];
+    double val = v_itg[idx1][idx2];
     return val;
 }    
 double Molecule::getEItg(int idx1, int idx2, int idx3, int idx4){
@@ -188,6 +188,8 @@ double Molecule::getEItg(int idx1, int idx2, int idx3, int idx4){
         Variable         Data type                                  Description
         val              double                                     integral value
     */
+    if(idx2 > idx1) swap(idx2, idx1);
+    if(idx4 > idx3) swap(idx4, idx3);
     if(idx3 > idx1){
         swap(idx1, idx3);
         swap(idx2, idx4);
@@ -205,5 +207,16 @@ void Molecule::_initialConstruct(const int charge_inp, vector<Atom> const& atoms
     basis_set = basis_set_inp;
     n_basis = basis_set.size();
     assert(n_basis > 0 && "Number of basis functions should be positive");
+    _calcNElectron();
+    assert(n_electron >= 0 && "Number of electrons should be non-negative");
+    assert(n_electron <= n_basis*2 && "Number of electrons is large than n_basis*2");
+    return;
+}
+void Molecule::_calcNElectron(){
+    n_electron = 0;
+    for(const auto& atom: atoms){
+        n_electron += int(atom.z);
+    }
+    n_electron -= charge;
     return;
 }

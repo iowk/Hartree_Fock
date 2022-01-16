@@ -1,12 +1,12 @@
 #include <bits/stdc++.h>
 #include <boost/algorithm/string.hpp>
-#include "read_input.h"
+#include "read_file.h"
 #include "utils.h"
 
 using namespace std;
 using namespace boost::algorithm;
 
-void setWordMap(map<string, string>& word_map){
+void setWordMapInput(map<string, string>& word_map){
     /*
     Set dictionary for input keywords
     Input:
@@ -23,6 +23,16 @@ void setWordMap(map<string, string>& word_map){
     word_map["Kinetic integrals"] = "t_itg";
     word_map["Nuclear Attraction integrals"] = "v_itg";
     word_map["Two-Electron integrals"] = "e_itg";
+    return;
+}
+void setWordMapOutput(map<string, string>& word_map){
+    /*
+    Set dictionary for output keywords
+    Input:
+        Variable         Data type                                  Description
+        word_map         map<string, string>                        word map to be set
+    */
+    word_map["Final total energy:"] = "e_tot";
     return;
 }
 
@@ -43,7 +53,7 @@ Molecule readMolecule(ifstream& inp_file, const bool is_read_itg){
     vector<Atom> atoms;
     vector<Basis> basis_set;
     map<string, string> word_map;
-    setWordMap(word_map);
+    setWordMapInput(word_map);
     string line;
     bool is_n_atom_read = false;
     bool is_n_basis_read = false;
@@ -133,6 +143,23 @@ Molecule readMolecule(ifstream& inp_file, const bool is_read_itg){
     word_map.clear();
     return mol;
 }
+double readOutputEnergy(ifstream& inp_file){
+    map<string, string> word_map;
+    setWordMapOutput(word_map);
+    string line;
+    while(getline(inp_file, line)){
+        trim(line);
+        if(word_map.find(line) != word_map.end()){
+            if(word_map[line] == "e_tot"){
+                word_map.clear();
+                return readDouble(inp_file);
+            }
+        }
+    }
+    assert("Cannot read final energy from output file");
+    word_map.clear();
+    return 0.0;
+}
 int readInt(ifstream& inp_file){
     /*
     Read charge from input file
@@ -147,6 +174,21 @@ int readInt(ifstream& inp_file){
     getline(inp_file, line);
     trim(line);
     return stoi(line);
+}
+double readDouble(ifstream& inp_file){
+    /*
+    Read charge from input file
+    Input:
+        Variable         Data type                                  Description        
+        inp_file         ifstream                                   input file
+    Return:
+        Variable         Data type                                  Description
+        number           double                                     value to be read
+    */
+    string line;
+    getline(inp_file, line);
+    trim(line);
+    return stod(line);
 }
 void readAtomCoord(ifstream& inp_file, vector<Atom>& atoms, const int n_atom){
     /*

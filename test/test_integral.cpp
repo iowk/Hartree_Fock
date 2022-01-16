@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 #include <filesystem>
 #include "test_integral.h"
-#include "../src/read_input.h"
+#include "../src/read_file.h"
 #include "../src/utils.h"
 
 using namespace std;
@@ -22,6 +22,6 @@ void testIntegrals(){
         assert(isItg2idxEqual(mol_implicit.t_itg, mol_explicit.t_itg) && "Incorrect t_itg");
         assert(isItg2idxEqual(mol_implicit.v_itg, mol_explicit.v_itg) && "Incorrect v_itg");
         assert(isEItgEqual(mol_implicit.e_itg, mol_explicit.e_itg) && "Incorrect e_itg"); 
-        cout << "Test integrals passed" << endl;
     }
+    cout << "Test integrals passed" << endl;
 }

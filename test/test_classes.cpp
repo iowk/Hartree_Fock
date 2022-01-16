@@ -21,12 +21,12 @@ void testPrimitive(){
 void testAtom(){
     vector<double> coord1{0.3, -0.6, 1.4};
     vector<double> coord2{1.3, 2.0, -1.5};
-    Atom atom1(coord1, 3.0);
-    Atom atom2(coord2, 4.2);
+    Atom atom1(coord1, 1);
+    Atom atom2(coord2, 1);
     coord1.clear();
     coord2.clear();
-    assert(isEqual(atom1.z, 3) && "Incorrect z for atom1");
-    assert(isEqual(atom2.z, 4) && "Incorrect z for atom2");
+    assert(isEqual(atom1.z, 1) && "Incorrect z for atom1");
+    assert(isEqual(atom2.z, 1) && "Incorrect z for atom2");
     assert(isEqual(atom1-atom1, 0) && "Incorrect distance between atom1 and atom1");
     assert(isEqual(atom1-atom2, 4.02119385258) && "Incorrect distance between atom1 and atom2");
     assert(isEqual(atom2-atom1, 4.02119385258) && "Incorrect distance between atom2 and atom1");
@@ -35,7 +35,7 @@ void testAtom(){
 }
 void testBasis(){
     vector<double> coord1{0.3, -0.6, 1.4};
-    Atom atom1(coord1, 3);
+    Atom atom1(coord1, 1);
     coord1.clear();
 
     Primitive p1(3.0, 2.5);
@@ -50,7 +50,7 @@ void testBasis(){
     assert(isEqual(b1.primitives[1].c, 1.5) && "Incorrect coefficient value for the second primitive");
     assert(b1.n_primitive == 2 && "Incorrect n_primtive value for basis b1");
     assert(isEqual(b1.atom.coord[0], 0.3) && "Incorrect atom.coord value for basis b1");
-    assert(isEqual(b1.atom.z, 3) && "Incorrect atom.z value for basis b1");
+    assert(isEqual(b1.atom.z, 1) && "Incorrect atom.z value for basis b1");
     cout << "Test basis passed" << endl;
     return;
 }
@@ -66,8 +66,8 @@ void testMolecule(){
 
     vector<double> coord1{0.3, -0.6, 1.4};
     vector<double> coord2{1.3, 2.0, -1.5};    
-    Atom atom1(coord1, 3);
-    Atom atom2(coord2, 4);
+    Atom atom1(coord1, 1);
+    Atom atom2(coord2, 1);
     coord1.clear();
     coord2.clear();
 
@@ -85,8 +85,8 @@ void testMolecule(){
     assert(mol_implicit.n_atom == 2 && "Incorrect n_basis value for mol_implicit");
     assert(mol_implicit.charge == 1 && "Incorrect charge value for mol_implicit");
     assert(mol_implicit.n_basis == 2 && "Incorrect n_basis value for atom1 (mol_implicit)");
-    assert(isEqual(mol_implicit.atoms[0].z, 3) && "Incorrect z for atom1 (mol_implicit)");
-    assert(isEqual(mol_implicit.atoms[1].z, 4) && "Incorrect z for atom2 (mol_implicit)");
+    assert(isEqual(mol_implicit.atoms[0].z, 1) && "Incorrect z for atom1 (mol_implicit)");
+    assert(isEqual(mol_implicit.atoms[1].z, 1) && "Incorrect z for atom2 (mol_implicit)");
     assert(mol_implicit.basis_set[0].n_primitive == 2 && "Incorrect n_primitive value for atoms[0].basis_set[0] (mol_implicit)");
     assert(mol_implicit.basis_set[1].n_primitive == 3 && "Incorrect n_primitive value for atoms[1].basis_set[1] (mol_implicit)");
     assert(isEqual(mol_implicit.basis_set[0].primitives[0].alpha, 3.0) && "Incorrect alpha value for atoms[0].basis_set[0].primitives[0] (mol_implicit)");
@@ -98,8 +98,8 @@ void testMolecule(){
     assert(mol_explicit.n_atom == 2 && "Incorrect n_basis value for mol_explicit");
     assert(mol_explicit.charge == 1 && "Incorrect charge value for mol_explicit");
     assert(mol_explicit.n_basis == 2 && "Incorrect n_basis value for atom1 (mol_explicit)");
-    assert(isEqual(mol_explicit.atoms[0].z, 3) && "Incorrect z for atom1 (mol_explicit)");
-    assert(isEqual(mol_explicit.atoms[1].z, 4) && "Incorrect z for atom2 (mol_explicit)");
+    assert(isEqual(mol_explicit.atoms[0].z, 1) && "Incorrect z for atom1 (mol_explicit)");
+    assert(isEqual(mol_explicit.atoms[1].z, 1) && "Incorrect z for atom2 (mol_explicit)");
     assert(mol_explicit.basis_set[0].n_primitive == 2 && "Incorrect n_primitive value for atoms[0].basis_set[0] (mol_explicit)");
     assert(mol_explicit.basis_set[1].n_primitive == 3 && "Incorrect n_primitive value for atoms[1].basis_set[1] (mol_explicit)");
     assert(isEqual(mol_explicit.basis_set[0].primitives[0].alpha, 3.0) && "Incorrect alpha value for atoms[0].basis_set[0].primitives[0] (mol_explicit)");

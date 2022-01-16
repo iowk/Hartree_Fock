@@ -81,6 +81,7 @@ class Molecule
         int charge;
         vector<Basis> basis_set;
         int n_basis;
+        int n_electron;
         vector<vector<double>> s_itg;
         vector<vector<double>> t_itg;
         vector<vector<double>> v_itg;   
@@ -98,4 +99,5 @@ class Molecule
 
     private:
         void _initialConstruct(const int, vector<Atom> const& , vector<Basis> const& );
+        void _calcNElectron();
 };

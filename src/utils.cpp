@@ -1,9 +1,11 @@
 #include <bits/stdc++.h>
+#include <Eigen/Dense>
 #include "utils.h"
 #include "../class/class.h"
 #define ERROR_THRES 0.000001
 
 using namespace std;
+using namespace Eigen;
 
 double isEqual(const double n1, const double n2){
     /*    
@@ -13,7 +15,7 @@ double isEqual(const double n1, const double n2){
         n2               double                                     double number 2
     Return:
         Variable         Data type                                  Description
-                         bool                                       check if abs(n1-n2) < epsilon
+                         bool                                       check if abs(n1-n2) < ERROR_THRES
     */  
     return abs(n1-n2) < ERROR_THRES;
 }
@@ -25,7 +27,7 @@ bool isItg2idxEqual(vector<vector<double>> const& v1, vector<vector<double>> con
         v2               vector<vector<double>>                     integral 2
     Return:
         Variable         Data type                                  Description
-                         bool                                       check if abs(n1-n2) < epsilon
+                         bool                                       check all elements of integral < ERROR_THRES
     */
     int n_basis = v1.size();
     for(int i = 0 ; i < n_basis ; ++i){
@@ -33,6 +35,25 @@ bool isItg2idxEqual(vector<vector<double>> const& v1, vector<vector<double>> con
             if(!isEqual(v1[i][j], v2[i][j])){
                 /*cout << i << ' ' << j << endl;
                 cout << v1[i][j] << ' ' << v2[i][j] << endl;*/
+                return false;
+            }
+        }
+    }
+    return true;
+}
+bool isMatEqual(MatrixXd const& v1, MatrixXd const& v2){
+    /*    
+    Input:
+        Variable         Data type                                  Description
+        v1               MatrixXd                                   matrix 1
+        v2               MatrixXd                                   matrix 2
+    Return:
+        Variable         Data type                                  Description
+                         bool                                       check all elements of matrix < ERROR_THRES
+    */
+    for(int i = 0 ; i < v1.rows() ; ++i){
+        for(int j = 0 ; j < v1.cols() ; ++j){
+            if(!isEqual(v1(i,j), v2(i,j))){
                 return false;
             }
         }

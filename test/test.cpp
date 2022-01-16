@@ -2,6 +2,7 @@
 #include "test_classes.h"
 #include "test_readfile.h"
 #include "test_integral.h"
+#include "test_final_energy.h"
 
 using namespace std;
 
@@ -23,4 +24,6 @@ int main(){
     testClasses();
     testReadFile();
     testIntegrals();
+    testFinalEnergy();
+    cout << endl << "All tests passed" << endl << endl;
 }
